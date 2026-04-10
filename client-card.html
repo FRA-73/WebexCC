@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CBH Bank — Client Card</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f4f5f7;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid #e2e4e9;
+      width: 100%;
+      max-width: 480px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      background: #0d5da6;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+      flex-shrink: 0;
+      letter-spacing: 1px;
+    }
+
+    .header-info { flex: 1; }
+    .header-name { font-size: 18px; font-weight: 600; color: #fff; }
+    .header-sub { font-size: 13px; color: rgba(255,255,255,0.75); margin-top: 3px; }
+
+    .status-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 99px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .status-found { background: #d1fae5; color: #065f46; }
+    .status-unknown { background: #fee2e2; color: #991b1b; }
+
+    .section { padding: 16px 24px; border-bottom: 1px solid #f0f1f4; }
+    .section:last-child { border-bottom: none; }
+
+    .section-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #9ca3af;
+      margin-bottom: 12px;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .field { display: flex; flex-direction: column; gap: 3px; }
+    .field.full { grid-column: 1 / -1; }
+
+    .field-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .field-value {
+      font-size: 14px;
+      color: #111827;
+      font-weight: 400;
+    }
+
+    .field-value.mono {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      color: #374151;
+    }
+
+    .field-value a {
+      color: #0d5da6;
+      text-decoration: none;
+      word-break: break-all;
+    }
+    .field-value a:hover { text-decoration: underline; }
+
+    .entity-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      font-size: 13px;
+      font-weight: 500;
+      color: #1d4ed8;
+    }
+
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #1d4ed8; }
+
+    .not-found {
+      padding: 40px 24px;
+      text-align: center;
+      color: #6b7280;
+    }
+    .not-found .icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+      opacity: .4;
+    }
+    .not-found h2 { font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+    .not-found p { font-size: 13px; line-height: 1.6; }
+
+    .footer {
+      padding: 10px 24px;
+      background: #f9fafb;
+      border-top: 1px solid #f0f1f4;
+      font-size: 11px;
+      color: #9ca3af;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card" id="card">
+  <div id="content"></div>
+</div>
+
+<script>
+  const p = new URLSearchParams(window.location.search);
+
+  const get = key => decodeURIComponent(p.get(key) || '');
+
+  const found     = get('found');
+  const fullName  = get('fullName');
+  const firstName = get('firstName');
+  const lastName  = get('lastName');
+  const birthDate = get('birthDate');
+  const identifier= get('identifier');
+  const email     = get('email');
+  const phone     = get('phone');
+  const entity    = get('entity');
+  const link      = get('link');
+  const ani       = get('ani');
+
+  const initials = (firstName && lastName)
+    ? (firstName[0] + lastName[0]).toUpperCase()
+    : (fullName ? fullName.substring(0,2).toUpperCase() : '??');
+
+  const formatDate = d => {
+    if (!d) return '—';
+    try {
+      const [y,m,day] = d.split('-');
+      return `${day}/${m}/${y}`;
+    } catch(e) { return d; }
+  };
+
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  let html = '';
+
+  if (found === 'true' && fullName) {
+    html = `
+      <div class="card-header">
+        <div class="avatar">${esc(initials)}</div>
+        <div class="header-info">
+          <div class="header-name">${esc(fullName)}</div>
+          <div class="header-sub">Inbound call${ani ? ' · ' + esc(ani) : ''}</div>
+        </div>
+        <span class="status-badge status-found">Identified</span>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Personal information</div>
+        <div class="field-grid">
+          <div class="field">
+            <div class="field-label">First name</div>
+            <div class="field-value">${esc(firstName) || '—'}</div>
+          </div>
+          <div class="field">
+            <div class="field-label">Last name</div>
+            <div class="field-value">${esc(lastName) || '—'}</div>
+          </div>
+          <div class="field">
+            <div class="field-label">Date of birth</div>
+            <div class="field-value">${formatDate(birthDate)}</div>
+          </div>
+          <div class="field">
+            <div class="field-label">Language</div>
+            <div class="field-value">${esc(get('language')) || '—'}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Contact details</div>
+        <div class="field-grid">
+          <div class="field">
+            <div class="field-label">Phone</div>
+            <div class="field-value">${esc(phone) || '—'}</div>
+          </div>
+          <div class="field">
+            <div class="field-label">Email</div>
+            <div class="field-value">${email ? `<a href="mailto:${esc(email)}">${esc(email)}</a>` : '—'}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Bank entity</div>
+        <div class="entity-pill">
+          <div class="dot"></div>
+          ${esc(entity) || '—'}
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Client ID</div>
+        <div class="field">
+          <div class="field-value mono">${esc(identifier) || '—'}</div>
+        </div>
+        ${link ? `<div style="margin-top:10px"><a href="${esc(link)}" target="_blank" style="font-size:13px;color:#0d5da6;font-weight:500">Open client record →</a></div>` : ''}
+      </div>
+
+      <div class="footer">
+        <span>CBH Bank · Agent view</span>
+        <span id="ts"></span>
+      </div>
+    `;
+  } else {
+    html = `
+      <div class="card-header" style="background:#6b7280">
+        <div class="avatar">?</div>
+        <div class="header-info">
+          <div class="header-name">Unknown caller</div>
+          <div class="header-sub">Inbound call${ani ? ' · ' + esc(ani) : ''}</div>
+        </div>
+        <span class="status-badge status-unknown">Not found</span>
+      </div>
+      <div class="not-found">
+        <div class="icon">○</div>
+        <h2>No client record found</h2>
+        <p>This caller was not matched in the database.<br>Please verify their identity manually.</p>
+      </div>
+      <div class="footer">
+        <span>CBH Bank · Agent view</span>
+        <span id="ts"></span>
+      </div>
+    `;
+  }
+
+  document.getElementById('content').innerHTML = html;
+
+  const ts = document.getElementById('ts');
+  if (ts) {
+    const now = new Date();
+    ts.textContent = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  }
+</script>
+
+</body>
+</html>
