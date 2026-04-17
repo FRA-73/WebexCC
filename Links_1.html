@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CBH Bank — Client Card</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue-deep: #0a3d6b;
+      --blue-mid:  #0d5da6;
+      --blue-light:#e8f1fb;
+      --accent:    #1a73e8;
+      --green:     #059669;
+      --green-bg:  #ecfdf5;
+      --red:       #dc2626;
+      --red-bg:    #fef2f2;
+      --gray-50:   #f9fafb;
+      --gray-100:  #f3f4f6;
+      --gray-200:  #e5e7eb;
+      --gray-400:  #9ca3af;
+      --gray-600:  #4b5563;
+      --gray-900:  #111827;
+      --radius:    14px;
+      --shadow:    0 4px 24px rgba(10,61,107,.10);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: linear-gradient(135deg, #e8f1fb 0%, #f3f4f6 60%, #fff 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 32px 16px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: var(--radius);
+      border: 1px solid var(--gray-200);
+      width: 100%;
+      max-width: 500px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      animation: fadeUp .4s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── HEADER ── */
+    .card-header {
+      background: linear-gradient(135deg, var(--blue-deep) 0%, var(--blue-mid) 100%);
+      padding: 22px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-header::after {
+      content: '';
+      position: absolute;
+      right: -40px; top: -40px;
+      width: 160px; height: 160px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.05);
+      pointer-events: none;
+    }
+
+    .avatar {
+      width: 50px; height: 50px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.18);
+      border: 2px solid rgba(255,255,255,.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; font-weight: 600; color: #fff;
+      flex-shrink: 0; letter-spacing: 1px;
+    }
+
+    .header-info { flex: 1; min-width: 0; }
+    .header-name { font-size: 17px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .header-sub  { font-size: 12px; color: rgba(255,255,255,.68); margin-top: 3px; font-weight: 400; }
+
+    .status-badge {
+      font-size: 10px; font-weight: 600;
+      padding: 4px 10px; border-radius: 99px;
+      text-transform: uppercase; letter-spacing: .06em;
+      flex-shrink: 0;
+    }
+    .status-found   { background: var(--green-bg); color: var(--green); }
+    .status-unknown { background: var(--red-bg);   color: var(--red); }
+
+    /* ── SECTIONS ── */
+    .section {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .section:last-child { border-bottom: none; }
+
+    .section-title {
+      font-size: 9.5px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .1em;
+      color: var(--gray-400); margin-bottom: 12px;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .field { display: flex; flex-direction: column; gap: 3px; }
+    .field.full { grid-column: 1 / -1; }
+
+    .field-label {
+      font-size: 10px; font-weight: 500;
+      color: var(--gray-400);
+      text-transform: uppercase; letter-spacing: .05em;
+    }
+
+    .field-value {
+      font-size: 14px; color: var(--gray-900); font-weight: 400;
+    }
+    .field-value.mono {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px; color: var(--gray-600);
+      background: var(--gray-50);
+      padding: 4px 8px; border-radius: 6px;
+      display: inline-block; letter-spacing: .04em;
+    }
+
+    .entity-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 12px; border-radius: 8px;
+      background: var(--blue-light);
+      border: 1px solid #bfdbfe;
+      font-size: 13px; font-weight: 500; color: var(--accent);
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+
+    /* ── LINKS SECTION ── */
+    .links-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .link-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      background: var(--gray-50);
+      border: 1px solid var(--gray-100);
+      transition: background .15s, border-color .15s, transform .1s;
+      text-decoration: none;
+    }
+    .link-item:hover {
+      background: var(--blue-light);
+      border-color: #bfdbfe;
+      transform: translateX(3px);
+    }
+
+    .link-icon {
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      background: var(--blue-light);
+      border: 1px solid #bfdbfe;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 17px;
+      line-height: 1;
+    }
+
+    .link-label {
+      font-size: 13px; font-weight: 500;
+      color: var(--blue-mid); flex: 1;
+    }
+
+    .link-arrow {
+      font-size: 14px; color: var(--gray-400);
+      transition: color .15s;
+    }
+    .link-item:hover .link-arrow { color: var(--blue-mid); }
+
+    .link-location {
+      font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .07em;
+      color: var(--blue-mid);
+      background: var(--blue-light);
+      border: 1px solid #bfdbfe;
+      padding: 2px 8px; border-radius: 99px;
+      flex-shrink: 0;
+    }
+    .link-item.disabled .link-location { color: var(--gray-400); background: var(--gray-100); border-color: var(--gray-200); }
+
+    .link-item.disabled {
+      opacity: .38; pointer-events: none;
+    }
+
+    /* ── NOT FOUND ── */
+    .not-found {
+      padding: 44px 24px; text-align: center; color: var(--gray-600);
+    }
+    .not-found .icon { font-size: 36px; margin-bottom: 14px; opacity: .3; }
+    .not-found h2 { font-size: 15px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+    .not-found p  { font-size: 13px; line-height: 1.65; color: var(--gray-400); }
+
+    /* ── FOOTER ── */
+    .footer {
+      padding: 10px 24px;
+      background: var(--gray-50);
+      border-top: 1px solid var(--gray-100);
+      font-size: 11px; color: var(--gray-400);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card" id="card">
+  <div id="content"></div>
+</div>
+
+<script>
+  const p   = new URLSearchParams(window.location.search);
+  const get = key => decodeURIComponent(p.get(key) || '');
+
+  const found      = get('found');
+  const fullName   = get('fullName');
+  const firstName  = get('firstName');
+  const lastName   = get('lastName');
+  const birthDate  = get('birthDate');
+  const identifier = get('identifier');
+  const email      = get('email');
+  const phone      = get('phone');
+  const entity     = get('entity');
+  const ani        = get('ani');
+
+  // 4 link variables
+  const link1 = get('link1');
+  const link2 = get('link2');
+  const link3 = get('link3');
+  const link4 = get('link4');
+
+  // 4 label variables with defaults
+  const label1 = get('label1') || 'Geneva';
+  const label2 = get('label2') || 'London';
+  const label3 = get('label3') || 'Nassau';
+  const label4 = get('label4') || 'Autre';
+
+  const links = [
+    { url: link1, label: 'Open client record', location: label1 },
+    { url: link2, label: 'Open account',        location: label2 },
+    { url: link3, label: 'Open contracts',       location: label3 },
+    { url: link4, label: 'Open history',         location: label4 },
+  ];
+
+  const initials = (firstName && lastName)
+    ? (firstName[0] + lastName[0]).toUpperCase()
+    : (fullName ? fullName.substring(0, 2).toUpperCase() : '??');
+
+  const formatDate = d => {
+    if (!d) return '—';
+    try { const [y,m,day] = d.split('-'); return `${day}/${m}/${y}`; }
+    catch(e) { return d; }
+  };
+
+  const esc = s => String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+  // Flag emojis per location
+  const flags = {
+    'Geneva': '🇨🇭',
+    'London': '🇬🇧',
+    'Nassau': '🇧🇸',
+    'Autre':  '🌐',
+  };
+  const defaultFlags = ['🇨🇭', '🇬🇧', '🇧🇸', '🌐'];
+
+  const buildLinks = () => {
+    const hasAny = links.some(l => l.url);
+    if (!hasAny) return '';
+    const items = links.map((l, i) => {
+      const active = !!l.url;
+      const flag = flags[l.location] || defaultFlags[i] || '🌐';
+      return `
+        <a class="link-item${active ? '' : ' disabled'}" href="${active ? esc(l.url) : '#'}" target="_blank">
+          <div class="link-icon">${flag}</div>
+          <span class="link-label">${esc(l.label)}</span>
+          <span class="link-location">${esc(l.location)}</span>
+          <span class="link-arrow">→</span>
+        </a>`;
+    }).join('');
+    return `
+      <div class="section">
+        <div class="section-title">Quick links</div>
+        <div class="links-list">${items}</div>
+      </div>`;
+  };
+
+  let html = '';
+
+  html = buildLinks();
+
+  document.getElementById('content').innerHTML = html;
+  const ts = document.getElementById('ts');
+  if (ts) {
+    const now = new Date();
+    ts.textContent = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  }
+</script>
+
+</body>
+</html>
