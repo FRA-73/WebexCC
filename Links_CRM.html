@@ -171,7 +171,7 @@
     { label: 'Geneva',    flag: FLAG_CH, url: get('link1') },
     { label: 'London',    flag: FLAG_GB, url: get('link2') },
     { label: 'Nassau',    flag: FLAG_BS, url: get('link3') },
-    { label: 'Hong Kong', flag: FLAG_HK, url: get('link4') },
+    // { label: 'Hong Kong', flag: FLAG_HK, url: get('link4') },
   ];
 
   const esc = s => String(s)
@@ -181,7 +181,7 @@
   const container = document.getElementById('links');
 
   entries.forEach(e => {
-    const active = !!e.url;
+    const active = !!e.url && e.url !== 'null' && e.url !== '[]' && e.url.trim() !== '';
     const a = document.createElement('a');
     a.className = 'link-item' + (active ? '' : ' disabled');
     a.href      = active ? e.url : '#';
