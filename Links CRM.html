@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CBH Bank — Quick Links</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue-deep:  #0a3d6b;
+      --blue-mid:   #0d5da6;
+      --blue-light: #e8f1fb;
+      --gray-50:    #f9fafb;
+      --gray-100:   #f3f4f6;
+      --gray-200:   #e5e7eb;
+      --gray-400:   #9ca3af;
+      --gray-900:   #111827;
+      --radius:     12px;
+      --shadow:     0 4px 20px rgba(10,61,107,.10);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #e8f1fb 0%, #f3f4f6 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: var(--radius);
+      border: 1px solid var(--gray-200);
+      width: 100%;
+      max-width: 420px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      animation: fadeUp .35s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, var(--blue-deep) 0%, var(--blue-mid) 100%);
+      padding: 16px 20px;
+    }
+    .card-header-title {
+      font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .1em;
+      color: rgba(255,255,255,.75);
+    }
+
+    .section { padding: 14px 16px; }
+
+    .links-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .link-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 9px;
+      background: var(--gray-50);
+      border: 1px solid var(--gray-100);
+      text-decoration: none;
+      transition: background .15s, border-color .15s, transform .12s;
+    }
+    .link-item:hover {
+      background: var(--blue-light);
+      border-color: #bfdbfe;
+      transform: translateX(4px);
+    }
+
+    .flag-wrap {
+      width: 36px; height: 26px;
+      border-radius: 4px;
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow: 0 1px 4px rgba(0,0,0,.18);
+    }
+    .flag-wrap svg { width: 36px; height: 26px; display: block; }
+
+    .link-location {
+      font-size: 13px; font-weight: 600;
+      color: var(--gray-900);
+      flex: 1;
+    }
+
+    .link-arrow {
+      font-size: 15px;
+      color: var(--gray-400);
+      transition: color .15s, transform .15s;
+    }
+    .link-item:hover .link-arrow {
+      color: var(--blue-mid);
+      transform: translateX(2px);
+    }
+
+    .link-item.disabled {
+      opacity: .35;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="card-header">
+    <div class="card-header-title">Open in CRM</div>
+  </div>
+  <div class="section">
+    <div class="links-list" id="links"></div>
+  </div>
+</div>
+
+<script>
+  // ── Drapeaux SVG inline (aucune ressource externe) ───────────────────────
+
+  const FLAG_CH = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 26">
+    <rect width="36" height="26" fill="#FF0000"/>
+    <rect x="15.3" y="5.2"  width="5.4" height="15.6" fill="#fff"/>
+    <rect x="10.5" y="10.3" width="15"  height="5.4"  fill="#fff"/>
+  </svg>`;
+
+  const FLAG_BS = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 26">
+    <rect width="36" height="8.67" y="0"     fill="#00778B"/>
+    <rect width="36" height="8.66" y="8.67"  fill="#FFC72C"/>
+    <rect width="36" height="8.67" y="17.33" fill="#00778B"/>
+    <polygon points="0,0 15,13 0,26" fill="#000E40"/>
+  </svg>`;
+
+  const FLAG_HK = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 26">
+    <rect width="36" height="26" fill="#DE2910"/>
+    <g transform="translate(18,13)" fill="none" stroke="#fff" stroke-width="0">
+      <!-- 5 pétales de Bauhinia simplifiés -->
+      <ellipse cx="0" cy="-5" rx="1.2" ry="3.2" fill="#fff" transform="rotate(0)"/>
+      <ellipse cx="0" cy="-5" rx="1.2" ry="3.2" fill="#fff" transform="rotate(72)"/>
+      <ellipse cx="0" cy="-5" rx="1.2" ry="3.2" fill="#fff" transform="rotate(144)"/>
+      <ellipse cx="0" cy="-5" rx="1.2" ry="3.2" fill="#fff" transform="rotate(216)"/>
+      <ellipse cx="0" cy="-5" rx="1.2" ry="3.2" fill="#fff" transform="rotate(288)"/>
+    </g>
+  </svg>`;
+
+  const FLAG_GB = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 26">
+    <rect width="36" height="26" fill="#012169"/>
+    <line x1="0"  y1="0"  x2="36" y2="26" stroke="#fff"     stroke-width="5.5"/>
+    <line x1="36" y1="0"  x2="0"  y2="26" stroke="#fff"     stroke-width="5.5"/>
+    <line x1="0"  y1="0"  x2="36" y2="26" stroke="#C8102E"  stroke-width="3.5"/>
+    <line x1="36" y1="0"  x2="0"  y2="26" stroke="#C8102E"  stroke-width="3.5"/>
+    <rect x="14.4"  y="0"    width="7.2" height="26"  fill="#fff"/>
+    <rect x="0"     y="9.4"  width="36"  height="7.2" fill="#fff"/>
+    <rect x="15.6"  y="0"    width="4.8" height="26"  fill="#C8102E"/>
+    <rect x="0"     y="10.6" width="36"  height="4.8" fill="#C8102E"/>
+  </svg>`;
+
+  // ── 4 entrées fixes (ordre JSON : Geneva=link1, Nassau=link2, HK=link3, London=link4)
+
+  const p   = new URLSearchParams(window.location.search);
+  const get = key => decodeURIComponent(p.get(key) || '');
+
+  const entries = [
+    { label: 'Geneva',    flag: FLAG_CH, url: get('link1') },
+    { label: 'Nassau',    flag: FLAG_BS, url: get('link2') },
+    { label: 'Hong Kong', flag: FLAG_HK, url: get('link3') },
+    { label: 'London',    flag: FLAG_GB, url: get('link4') },
+  ];
+
+  const esc = s => String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+  const container = document.getElementById('links');
+
+  entries.forEach(e => {
+    const active = !!e.url;
+    const a = document.createElement('a');
+    a.className = 'link-item' + (active ? '' : ' disabled');
+    a.href      = active ? e.url : '#';
+    if (active) a.target = '_blank';
+    a.innerHTML = `
+      <div class="flag-wrap">${e.flag}</div>
+      <span class="link-location">${esc(e.label)}</span>
+      <span class="link-arrow">→</span>
+    `;
+    container.appendChild(a);
+  });
+</script>
+</body>
+</html>
